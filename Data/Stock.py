@@ -14,11 +14,16 @@ def get_stock_list():
     return stock_list
 
 # 获取单个股票行情数据
-def get_single_price(stock_code, timefrequency, startdate=None, enddate=None, count=None):
+def get_single_price(stock_code, timefrequency, start_date=None, end_date=None, count=None):        
     if count == None:
-        data = get_price(stock_code, start_date=startdate, end_date=enddate, frequency=timefrequency)
+        #如果start_date为None你默认从上市日期开始计算
+        if start_date is None:
+            start_date = get_security_info(stock_code).start_date
+        # print(stock_code, ' 的上市时间是 ', start_date)
+
+        data = get_price(stock_code, start_date=start_date, end_date=end_date, frequency=timefrequency)
     else :
-        data = get_price(stock_code, count=count, end_date=enddate, frequency=timefrequency)
+        data = get_price(stock_code, count=count, end_date=end_date, frequency=timefrequency)
     return data
 
 # 导出股票相关的数据(type:存储的文件夹的名称[Finace/Price])
