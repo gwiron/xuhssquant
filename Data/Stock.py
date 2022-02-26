@@ -4,7 +4,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 from jqdatasdk import *
 import pandas as pd
-import time
+import time,datetime
 
 auth('17606513012','3344Woaini')
 
@@ -20,18 +20,32 @@ def get_single_price(stock_code, timefrequency, start_date=None, end_date=None, 
         if start_date is None:
             start_date = get_security_info(stock_code).start_date
         # print(stock_code, ' 的上市时间是 ', start_date)
+        if end_date is None:
+            end_date = datetime.datetime.today()
 
         data = get_price(stock_code, start_date=start_date, end_date=end_date, frequency=timefrequency)
     else :
+        if end_date is None:
+            end_date = datetime.datetime.today()
         data = get_price(stock_code, count=count, end_date=end_date, frequency=timefrequency)
     return data
 
 # 导出股票相关的数据(type:存储的文件夹的名称[Finace/Price])
-def export_data(data, filename, type):
-    fileroot = BASE_DIR + '/Data/' + type +'/' + filename + '.csv'
-    data.index.names = ['date']
-    data.to_csv(fileroot)
-    print('已经存储成功，存储路径为', fileroot)
+def export_data(data, filename, type, mode=None):
+    finalname = BASE_DIR + '/Data/' + type +'/' + filename + '.csv'
+    data = data.set_index(keys=['date'])
+    if mode == 'a':
+        data.to_csv(finalname, mode=mode, header=False)
+        # 刪除重复值
+        data = pd.read_csv(finalname)
+        data = data.drop_duplicates(subset=['date']) # 以日期列为准
+        data.to_csv(finalname) # 再次写入
+    else:
+        data.to_csv(finalname)
+    print('保存成功，存储路径是：', finalname)
+    # data.index.names = ['date']
+    # data.to_csv(finalname)
+    # print('已经存储成功，存储路径为', finalname)
 
 # 将数据转换股票行情指定周期
 def transfer_price_freq(data, timefrequency):
@@ -68,3 +82,19 @@ def calculate_change_pct(data):
     """
     data['close_pct'] = (data['close'] - data['close'].shift(1)) / data['close'].shift(1)
     return data
+
+# 每日获取数据
+def update_daily_price(stockCode, type):
+    # 0是否存在文件：不存在-再次获取，存在-3.2
+    finalname = BASE_DIR + '/Data/' + type +'/' + stockCode + '.csv'
+    if os.path.exists(finalname):
+        # 1获取增量数据（code, startdate=对应股票csv中日期，enddate=今天）
+        startdate = pd.read_csv(finalname, usecols=['date'])['date'].iloc[-1]
+        print(startdate)
+        df = get_single_price(stockCode, 'daily', startdate, datetime.datetime.today())
+        # 2追加到已有文件中（是否存在文件：创建csv,追加数据）
+        export_data(df, stockCode, 'Price', 'a')
+    else:
+        # 再次获取股票行情数据
+        df = get_single_price(stockCode, 'daily', None, None)
+        export_data(df, stockCode, 'Price')
