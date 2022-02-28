@@ -11,4 +11,6 @@ code = '000001.XSHE'
 # st.export_data(data=data, filename=code, type='Price')
 
 # 获取数据
-st.update_daily_price(code, 'Price')
+# st.update_daily_price(code, 'Price')
+
+st.update_price_db()

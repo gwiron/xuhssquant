@@ -33,12 +33,13 @@ def get_single_price(stock_code, timefrequency, start_date=None, end_date=None, 
 # 导出股票相关的数据(type:存储的文件夹的名称[Finace/Price])
 def export_data(data, filename, type, mode=None):
     finalname = BASE_DIR + '/Data/' + type +'/' + filename + '.csv'
-    data = data.set_index(keys=['date'])
+    data.index.names = ['date']
     if mode == 'a':
         data.to_csv(finalname, mode=mode, header=False)
         # 刪除重复值
         data = pd.read_csv(finalname)
         data = data.drop_duplicates(subset=['date']) # 以日期列为准
+        data = data.set_index(['date']) # 设置索引为 date
         data.to_csv(finalname) # 再次写入
     else:
         data.to_csv(finalname)
@@ -95,6 +96,14 @@ def update_daily_price(stockCode, type):
         # 2追加到已有文件中（是否存在文件：创建csv,追加数据）
         export_data(df, stockCode, 'Price', 'a')
     else:
-        # 再次获取股票行情数据
+        # 首次获取股票行情数据
         df = get_single_price(stockCode, 'daily', None, None)
         export_data(df, stockCode, 'Price')
+
+# 股票数据库全量下载 or 更新
+def update_price_db():
+    # 1.获取所有的股票代码
+    stocks = get_stock_list()
+    # 2.存储到csv文件中
+    for stockCode in stocks:
+        update_daily_price(stockCode, 'Price')
