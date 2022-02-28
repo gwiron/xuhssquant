@@ -13,4 +13,8 @@ code = '000001.XSHE'
 # 获取数据
 # st.update_daily_price(code, 'Price')
 
-st.update_price_db()
+# st.update_price_db()
+
+# 从本地读取数据
+data = st.get_csv_price(code=code, start_date='2021-02-01', end_date='2021-03-01')
+print(data)

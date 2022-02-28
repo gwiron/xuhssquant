@@ -74,6 +74,16 @@ def get_csv_data(code, type):
     fileroot = BASE_DIR + '/Data/' + type +'/' + code + '.csv'
     return pd.read_csv(fileroot)
 
+# 从本地获取股票行情数据
+def get_csv_price(code, start_date, end_date, type='Price'):
+    # 使用update获取
+    update_daily_price(code, type=type)
+    # 读取数据库对应的股票csv文件
+    finalname = BASE_DIR + '/Data/' + type + '/' + code + '.csv'
+    data = pd.read_csv(finalname, index_col='date')
+    # 根据起始终止日期筛选数据
+    return  data[(data.index >= start_date) & (data.index <= end_date)]
+
 #涨跌幅计算
 def calculate_change_pct(data):
     """
@@ -85,7 +95,7 @@ def calculate_change_pct(data):
     return data
 
 # 每日获取数据
-def update_daily_price(stockCode, type):
+def update_daily_price(stockCode, type='Price'):
     # 0是否存在文件：不存在-再次获取，存在-3.2
     finalname = BASE_DIR + '/Data/' + type +'/' + stockCode + '.csv'
     if os.path.exists(finalname):
@@ -95,10 +105,12 @@ def update_daily_price(stockCode, type):
         df = get_single_price(stockCode, 'daily', startdate, datetime.datetime.today())
         # 2追加到已有文件中（是否存在文件：创建csv,追加数据）
         export_data(df, stockCode, 'Price', 'a')
+        print("股票数据已经从远程增强获取成功：", stockCode)
     else:
         # 首次获取股票行情数据
         df = get_single_price(stockCode, 'daily', None, None)
         export_data(df, stockCode, 'Price')
+        print("股票数据已经从远程首次获取成功：", stockCode)
 
 # 股票数据库全量下载 or 更新
 def update_price_db():
