@@ -24,13 +24,36 @@ def ma_strategy(data, short_window=5, long_window=20):
     # #删除多余的columns
     data = data.drop(labels=['buy_signal', 'sell_signal'], axis = 1)
     # print(data)
+
+    #计算单次收益率
+    data = strat.calculate_profit_pct(data)
+    #计算累计收益率
+    data = strat.calculate_cum_prof(data)
     return data
 
+# if __name__ == '__main__':
+#     data = st.get_single_price(stock_code ='000001.XSHE', timefrequency='daily', start_date='2020-01-01', end_date='2021-04-01')
+#     data = ma_strategy(data)
+#     #筛选有信号点的数据
+#     data = data[data['signal']!=0]
+#     #预览数据
+#     # print("开仓次数：", int(len(data)/2))
+#     print(data)
+
 if __name__ == '__main__':
-    data = st.get_single_price(stock_code ='000001.XSHE', timefrequency='daily', start_date='2020-01-01', end_date='2021-04-01')
-    data = ma_strategy(data)
-    #筛选有信号点的数据
-    data = data[data['signal']!=0]
-    #预览数据
-    # print("开仓次数：", int(len(data)/2))
-    print(data)
+    #创建股票列表（平安银行 五粮液 比亚迪）
+    stocks = ['000001.XSHE', '000858.XSHE', '002594.XSHE']
+    # 存放累计收益率
+    cum_profits = pd.DataFrame()
+    for code in stocks:
+        data = st.get_single_price(stock_code=code, timefrequency='daily', start_date='2016-01-01', end_date='2021-01-01')
+        data = ma_strategy(data)
+        cum_profits[code] = data['cum_profit'].reset_index(drop=True)
+        print("开仓次数：", int(len(data)))
+
+    #预览
+    print(cum_profits)
+    # 可视化
+    # cum_profits.plot()
+    # plt.title('comparison of ma strategy')
+    # plt.show()
