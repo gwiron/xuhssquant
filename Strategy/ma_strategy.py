@@ -29,6 +29,8 @@ def ma_strategy(data, short_window=5, long_window=20):
     data = strat.calculate_profit_pct(data)
     #计算累计收益率
     data = strat.calculate_cum_prof(data)
+
+    print(data[['close', 'short_ma', 'long_ma', 'signal', 'profit_pct', 'cum_profit']])
     return data
 
 # if __name__ == '__main__':
@@ -54,6 +56,6 @@ if __name__ == '__main__':
     #预览
     print(cum_profits)
     # 可视化
-    # cum_profits.plot()
-    # plt.title('comparison of ma strategy')
-    # plt.show()
+    cum_profits.plot()
+    plt.title('comparison of ma strategy')
+    plt.show()

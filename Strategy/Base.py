@@ -18,7 +18,8 @@ def compose_signal(data):
 #计算单次收益率：开仓、平仓（开仓的全部股数）
 def calculate_profit_pct(data):
     data = data[data['signal']!=0]
-    data['profit_pct'] = (data['close']-data['close'].shift(1))/data['close'].shift(1)
+    data = data.copy() # 防止报错提醒
+    data['profit_pct'] = ((data['close']-data['close'].shift(1))/data['close'].shift(1))
     data = data[data['signal']!=1]
     return data
 
@@ -77,8 +78,8 @@ def week_period_strategy(stock_code, timefrequency, start_date=None, end_date=No
     return data
 
 if __name__ == '__main__':
-    # data = week_period_strategy(stock_code='000001.XSHE', timefrequency='daily', end_date='2021-06-01')
-    # print(data)
+    data = week_period_strategy(stock_code='000001.XSHE', timefrequency='daily', end_date='2021-06-01',)
+    print(data)
 
     # # pandas 表格的描述计算
     # print(data.describe())
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     # data[['daily_drawndown', 'max_drawndown']].plot()
     # plt.show()
 
-    data = st.get_single_price(stock_code='000001.XSHE', timefrequency='daily', start_date='2006-06-01', end_date='2021-06-01')
-    # 计算最大回撤率
-    sharp = calculate_sharp(data)
-    print(sharp)
+    # data = st.get_single_price(stock_code='000001.XSHE', timefrequency='daily', start_date='2006-06-01', end_date='2021-06-01')
+    # # 计算最大回撤率
+    # sharp = calculate_sharp(data)
+    # print(sharp)
