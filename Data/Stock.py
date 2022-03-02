@@ -13,6 +13,11 @@ def get_stock_list():
     stock_list = list(get_all_securities(['stock']).index)
     return stock_list
 
+# 獲取指数成分股票数据（指数代码网址：https://www.joinquant.com/indexData）
+def get_index_list(index_symbol = '000300.XSHG'):
+    stocks = get_index_stocks(index_symbol)
+    return stocks
+
 # 获取单个股票行情数据
 def get_single_price(stock_code, timefrequency, start_date=None, end_date=None, count=None):        
     if count == None:
