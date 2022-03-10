@@ -13,7 +13,7 @@ def get_stock_list():
     stock_list = list(get_all_securities(['stock']).index)
     return stock_list
 
-# 獲取指数成分股票数据（指数代码网址：https://www.joinquant.com/indexData）
+# 获取指数成分股票数据（指数代码网址：https://www.joinquant.com/indexData）
 def get_index_list(index_symbol = '000300.XSHG'):
     stocks = get_index_stocks(index_symbol)
     return stocks
