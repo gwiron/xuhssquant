@@ -57,7 +57,7 @@ def get_price(code, end_date='',count=10, frequency='1d', fields=[]):        #�
          except: return get_price_min_tx(xcode,end_date=end_date,count=count,frequency=frequency)   #备用
         
 if __name__ == '__main__':    
-    df=get_price('000001.XSHE',frequency='1M',count=10)      # sh000001 支持'1d'日, '1w'周, '1M'月  
+    df=get_price('000001.XSHE',frequency='1d',count=1000)      # sh000001 支持'1d'日, '1w'周, '1M'月  
     print('平安银行日线行情\n',df)
     
     df=get_price('000001.XSHE',frequency='15m',count=10)  # 000001.XSHG 支持'1m','5m','15m','30m','60m'

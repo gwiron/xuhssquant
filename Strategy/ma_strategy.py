@@ -19,28 +19,51 @@ def ma_strategy(data, short_window=5, long_window=20):
     data['buy_signal'] = np.where(data['short_ma']>data['long_ma'], 1, 0)
     data['sell_signal'] = np.where(data['short_ma']<data['long_ma'], -1, 0)
     # print(data)
+
+    # ——————
+    # data_copy = data.copy()
+    # data = data.copy()
+    # ——————
+
     #过滤信号：st.compose_signal
     data = strat.compose_signal(data=data)
     # #删除多余的columns
     data = data.drop(labels=['buy_signal', 'sell_signal'], axis = 1)
     # print(data)
 
+    # ——————
+    # data_copy['signal'] = data['signal']
+    # ——————
+
     #计算单次收益率
     data = strat.calculate_profit_pct(data)
     #计算累计收益率
     data = strat.calculate_cum_prof(data)
 
-    print(data[['close', 'short_ma', 'long_ma', 'signal', 'profit_pct', 'cum_profit']])
+    # ——————
+    # data_copy['profit_pct'] = data['profit_pct']
+    # data_copy['cum_profit'] = data['profit_pct']
+    # data = data_copy
+    # ——————
+
+    # print(data[['close', 'short_ma', 'long_ma', 'signal', 'profit_pct', 'cum_profit']])
     return data
 
 # if __name__ == '__main__':
-#     data = st.get_single_price(stock_code ='000001.XSHE', timefrequency='daily', start_date='2020-01-01', end_date='2021-04-01')
-#     data = ma_strategy(data)
-#     #筛选有信号点的数据
-#     data = data[data['signal']!=0]
-#     #预览数据
-#     # print("开仓次数：", int(len(data)/2))
-#     print(data)
+#     stocks = ['000001.XSHE', '000858.XSHE', '002594.XSHE']
+#     for code in stocks:
+#         data = st.get_single_price(stock_code= code, timefrequency= 'daily', start_date='2020-01-01', end_date='2021-04-01')
+#         data = ma_strategy(data)
+#         #筛选有信号点的数据
+#         # data = data[data['signal']!=0]
+#         #预览数据
+#         # print("开仓次数：", int(len(data)/2))
+#         # print(data)
+#         # print(data[['close', 'short_ma', 'long_ma', 'signal', 'profit_pct', 'cum_profit']])
+
+#         print(code)
+
+#         st.export_data(data, filename=code, type='Price')
 
 if __name__ == '__main__':
     #创建股票列表（平安银行 五粮液 比亚迪）
