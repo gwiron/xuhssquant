@@ -2,9 +2,8 @@
 # 寻找近制定日期的前5日均是跌的股票，打印后5天的数据表现
 # ——————————
 
-from ast import Num
-from pickle import TRUE
 import sys,os
+from types import CodeType
 
 from numpy.lib.index_tricks import AxisConcatenator
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +15,7 @@ import Data.Stock_codes as Stock_codes
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import Data.lib.Ashare as as_data
+import Data.Lib.Ashare as as_data
 
 # 股票池
 # stocks = ['000001.XSHE', '000858.XSHE', '002594.XSHE'] 
@@ -43,48 +42,54 @@ def judge_stock_rise_5day(data):
     return data
 
 def data_filter(data, type):
-    data[type + '_5day_after_1day'] = ( data[type + '_5day'].shift(1))
-
-    data[type + '_5day_before_1day'] = ( data[type + '_5day'].shift(-1))
-    data[type + '_5day_before_2day'] = ( data[type + '_5day'].shift(-2))
-    data[type + '_5day_before_3day'] = ( data[type + '_5day'].shift(-3))
-    data[type + '_5day_before_4day'] = ( data[type + '_5day'].shift(-4))
-    data[type + '_5day_before_5day'] = ( data[type + '_5day'].shift(-4))
+    data[type + '_5day_after_in_5day'] = np.where( (\
+        (data[type + '_5day'].shift(1) == 1 ) |\
+        (data[type + '_5day'].shift(2) == 1 ) |\
+        (data[type + '_5day'].shift(3) == 1 ) |\
+        (data[type + '_5day'].shift(4) == 1 ) |\
+        (data[type + '_5day'].shift(5) == 1 )  ), 1, 0)
+        
+    # data[type + '_5day_before_in_5day'] = np.where( (\
+    #     (data[type + '_5day'].shift(-1) == 1 ) |\
+    #     (data[type + '_5day'].shift(-2) == 1 ) |\
+    #     (data[type + '_5day'].shift(-3) == 1 ) |\
+    #     (data[type + '_5day'].shift(-4) == 1 ) |\
+    #     (data[type + '_5day'].shift(-5) == 1 )  ), 1, 0)
 
     data = data[ (data[type + '_5day'] == 1 ) |\
-        (data[type + '_5day_after_1day'] == 1)|\
-        (data[type + '_5day_before_1day'] == 1)|\
-        (data[type + '_5day_before_2day'] == 1)|\
-        (data[type + '_5day_before_3day'] == 1)|\
-        (data[type + '_5day_before_4day'] == 1)|\
-        (data[type + '_5day_before_5day'] == 1) ]
+        (data[type + '_5day_after_in_5day'] == 1)]
+        # (data[type + '_5day_before_in_5day'] == 1) ]
     return data
 
 res_stocks = []
 mode = None
 finalname = BASE_DIR + '/Data/Select_stock/' + 'judge_stock_drop_5day' + '.csv'
 
+is_loc_fil = False
+loc_stocks_data = pd.DataFrame()
+if os.path.exists(finalname):
+    loc_stocks_data = pd.read_csv(finalname, usecols=['code'])
+    is_loc_fil = True
+
 # 找出指定日期连续跌的股票
 for code in stocks:
-    loc_stocks_data = pd.read_csv(finalname, usecols=['code'])
-    if ( not (code in loc_stocks_data['code'].values) ):
-        # data = st.get_single_price(stock_code=code, timefrequency='daily', start_date='2010-01-01', end_date='2022-03-11')
-        data = as_data.get_price(code=code, count=2892)
-        print('获取代码',code,'数据')
+    if (is_loc_fil == False) or ( not (code in loc_stocks_data['code'].values) ):
+        # data = as_data.get_price(code=code, count=2892)
+        # data['money'] = ''
+        data = st.get_csv_price(stock_code=code, timefrequency='daily', start_date='2010-01-01', end_date='2022-03-11')
+        print('获取代码',code,'数据成功')
         data['code'] = code
-        data['money'] = ''
 
         data = judge_stock_drop_5day(data)
         data = data_filter(data, 'drop')
-        data = data[['code','open','close','high','low','volume','money','drop_5day','drop_5day_after_1day']]
+        data = data[['code','open','close','high','low','volume','money','drop_5day','drop_5day_after_in_5day']]
         # print(data)
 
         # 追加输出csv
         st.export_data(data, filename='judge_stock_drop_5day', type='Select_stock',mode=mode,no_repeat=None)
         mode = 'a'
     else:
-        print('股票代码',code, '已经下载')
-
+        print('股票代码',code, '已经存在')
 
 
 
